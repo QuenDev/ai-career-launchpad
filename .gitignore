@@ -1,0 +1,15 @@
+# dependencies
+node_modules/
+
+# environment variables
+.env
+.env.local
+
+# TypeScript build
+dist/
+
+# logs
+*.log
+
+# Mac
+.DS_Store
