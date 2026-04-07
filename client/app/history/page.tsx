@@ -87,7 +87,7 @@ export default function HistoryPage() {
                     <Card key={analysis.id}>
                         <CardHeader>
                             <CardTitle className="flex justify-between">
-                                <span>Match Score: {analysis.score}/100</span>
+                                <span>Match Score: {analysis?.score}/100</span>
                                 <span className="text-sm font-normal text-slate-500">
                                 {new Date(analysis.created_at).toLocaleDateString()}
                                 </span>
@@ -96,7 +96,7 @@ export default function HistoryPage() {
                             
                         {/* Summary */}
                         <div className="bg-muted p-4 rounded-lg">
-                            <p className="text-muted-foreground">{analysis.summary}</p>
+                            <p className="text-muted-foreground">{analysis?.summary}</p>
                         </div>
 
                         {/* Keywords */}
@@ -104,7 +104,7 @@ export default function HistoryPage() {
                             <div>
                                 <h3 className="font-semibold mb-2"> ✅ Keywords Found </h3>
                                 <div className="flex flex-wrap gap-2">
-                                {analysis.keywords_match.map((keyword, i) => (
+                                {analysis.keywords_match?.map((keyword, i) => (
                                 <Badge key={i} className="bg-green-100 text-green-800 hover:bg-green-100">
                                 {keyword}
                                 </Badge>
@@ -114,7 +114,7 @@ export default function HistoryPage() {
                         <div>
                             <h3 className="font-semibold mb-2">❌ Keywords Missing</h3>
                             <div className="flex flex-wrap gap-2">
-                                {analysis.keywords_missing.map((keyword, i) => (
+                                {analysis.keywords_missing?.map((keyword, i) => (
                                 <Badge key={i} className="bg-red-100 text-red-800 hover:bg-red-100">
                                 {keyword}
                                 </Badge>
@@ -128,7 +128,7 @@ export default function HistoryPage() {
                             <div>
                                 <h3 className="font-semibold text-green-600 mb-2">Strengths</h3>
                                 <ul className="list-disc pl-5">
-                                    {analysis.strengths.map((s, i) => (
+                                    {analysis.strengths?.map((s, i) => (
                                         <li key={i}>{s}</li>
                                     ))}
                                 </ul>
@@ -136,7 +136,7 @@ export default function HistoryPage() {
                             <div>
                                 <h3 className="font-semibold text-red-600 mb-2">Weaknesses</h3>
                                 <ul className="list-disc pl-5">
-                                    {analysis.weaknesses.map((w, i) => (
+                                    {analysis.weaknesses?.map((w, i) => (
                                         <li key={i}>{w}</li>
                                     ))}
                                 </ul>
@@ -144,7 +144,7 @@ export default function HistoryPage() {
                             <div>
                                 <h3 className="font-semibold text-blue-600 mb-2">Suggestions</h3>
                                 <ul className="list-disc pl-5">
-                                    {analysis.suggestions.map((s, i) => (
+                                    {analysis.suggestions?.map((s, i) => (
                                         <li key={i}>{s}</li>
                                     ))}
                                 </ul>
