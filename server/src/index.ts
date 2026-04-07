@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import authRoutes from "./routes/auth";
 import { authMiddleware } from "./middleware/authMiddleware";
 import analyzeRoutes from "./routes/analyze";
@@ -11,22 +13,50 @@ dotenv.config(); // loads .env variables
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());           // allow frontend requests
+//Security Headers
+app.use(helmet());
+
+
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://ai-career-launchpad.vercel.app"
+  ],
+  credentials: true
+}));           
+
 app.use(express.json());   // parse JSON request bodies
+
+//Global rate limit
+const globalLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // max 100 request per 15 mins
+  message: { error: "Too many requests, please try again later."}
+});
+
+// Strict rate limit for AI route
+const analyzeLimit = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // max 10 request per hour
+  message: { error: "Analysis limit reached. Please try again in an hour."}
+});
+
+app.use(globalLimit);
 
 // Auth routes 
 app.use("/auth", authRoutes);
+
+//Analyze Routes
+app.use("/analyze", analyzeLimit, analyzeRoutes);
+
+//History Routes
+app.use("/history", historyRoutes);
 
 //Test protecterd route
 app.get("/protected", authMiddleware, (req, res) => {
   res.json({message: "You are authorized!"});
 });
 
-//Analyze Routes
-app.use("/analyze" , analyzeRoutes);
-
-//History Routes
-app.use("/history", historyRoutes);
 
 app.get("/", (req, res) => {
   res.send("AI Career Launchpad API is running...");
