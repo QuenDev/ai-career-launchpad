@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { isLoggedIn } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import Navbar from "@/components/Navbar";
 
 interface Analysis {
@@ -45,13 +46,24 @@ export default function HistoryPage() {
      fetchHistory();
  },[]);
 
-    if(loading) {
-        return (
-            <main className="min-h-screen flex items-center justify-center">
-                <p>Loading History...</p>
-            </main>
-        );
-    }
+   if (loading) {
+  return (
+    <main className="min-h-screen bg-slate-100 p-8">
+      <Navbar />
+      <div className="max-w-3xl mx-auto flex flex-col gap-6 mt-8">
+        <Skeleton className="h-8 w-48 mx-auto" />
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-white rounded-lg p-6 flex flex-col gap-4">
+            <Skeleton className="h-6 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+}
 
     return (
         <>

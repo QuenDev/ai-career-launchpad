@@ -7,17 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export default function SignupPage() {
     const router = useRouter ();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+
+    //Handle Signup
     const handleSignUp = async () => {
         setLoading(true);
-        setError("");
+        toast.dismiss();
 
         try {
             const res = await apiFetch("/auth/signup", {
@@ -28,13 +30,15 @@ export default function SignupPage() {
             const data = await res.json();
 
             if (!res.ok) {
-                setError(data.error);
+                toast.error(data.error);
                 return;
             }
 
+            toast.success("Account created! Please login.");
+
             router.push("/login");
         } catch (err) {
-            setError("Something went wrong. Please try again.");
+            toast.error("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -48,9 +52,7 @@ export default function SignupPage() {
             <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
         </CardHeader>    
         <CardContent className="flex flex-col gap-4">
-            {error && (
-                <p className="text-red-500 text-sm text-center">{error}</p>
-            )}
+
             <div className="flex flex-col gap-2">
                 <Label>Email</Label>
                 <Input

@@ -7,6 +7,7 @@ import { apiFetch } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 import Navbar from "@/components/Navbar";
 
 interface AnalysisResult {
@@ -22,7 +23,6 @@ export default function DashboardPage () {
     const [jobDescription, setJobDescription] = useState("");
     const [result, setResult] = useState<AnalysisResult | null>(null);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
 
     useEffect(() => {
         if(!isLoggedIn()) {
@@ -31,19 +31,18 @@ export default function DashboardPage () {
     }, []);
     
     const handleAnalyze = async () => {
-
+        toast.dismiss();
         //validate inputs
         if(resume.trim().length < 50) {
-            setError("Resume is too short. Please paste your full resume.");
+            toast.error("Resume is too short. Please paste your full resume.");
             return;
         }
         
         if(jobDescription.trim().length < 30) {
-            setError("Job descriptions is too short. Please paste the full job description");
+            toast.error("Job descriptions is too short. Please paste the full job description");
             return;
         }
         setLoading(true);
-        setError("");
         setResult(null);
 
         try {
@@ -55,7 +54,7 @@ export default function DashboardPage () {
     const data = await res.json();
 
         if(!res.ok) {
-            setError(data.error);
+            toast.error(data.error);
             return;
         }
 
@@ -73,8 +72,11 @@ export default function DashboardPage () {
             suggestions: data.suggestions,
            }),
         });
+
+        toast.success("Analysis saved to history!");
+
     }   catch(err) {
-        setError("Something went wrong. Please try again.");       
+        toast.error("Something went wrong. Please try again.");       
     }   finally {
         setLoading(false);
         }
@@ -114,10 +116,6 @@ return (
                         />
                 </CardContent>
             </Card>
-
-            {error && (
-                <p className="text-red-500 text-center">{error}</p>
-            )}
 
             <Button onClick={handleAnalyze} disabled={loading}>
                 {loading ? "Analyzing..." : "Analyze Resume"}

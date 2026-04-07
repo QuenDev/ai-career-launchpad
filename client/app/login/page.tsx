@@ -8,18 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     
     //Handle Login
     const handleLogin = async () => {
         setLoading(true);
-        setError("");
+        toast.error("");
 
         try {
             const res = await apiFetch("/auth/login" , {
@@ -30,14 +30,16 @@ export default function LoginPage() {
             const data = await res.json();
 
             if(!res.ok) {
-                setError(data.error);
+                toast.error(data.error);
                 return;
             }
+
+            toast.success("Welcome back!");
 
             setToken(data.token);
             router.push("/dashboard");
         }   catch (err) {
-            setError("Something went wrong. Please try again.");
+            toast.error("Something went wrong. Please try again.");
         }   finally {
             setLoading(false);
         }
@@ -50,9 +52,6 @@ export default function LoginPage() {
                 <CardTitle className="text-2xl text-center">Welcome Back!</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-                {error && (
-                    <p className="text-red-500 text-sm text-center">{error}</p>
-                )}
                 <div className="flex flex-col gap-2">
                     <Label>Email</Label>
                     <Input
