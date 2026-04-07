@@ -6,6 +6,7 @@ import { isLoggedIn } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
 
 interface Analysis {
@@ -16,6 +17,9 @@ interface Analysis {
     strengths: string[];
     weaknesses: string[];
     suggestions: string[];
+    keywords_match: string[];
+    keywords_missing: string[];
+    summary: string;
     created_at: string;
 }
 
@@ -89,6 +93,37 @@ export default function HistoryPage() {
                                 </span>
                             </CardTitle>
                         </CardHeader>
+                            
+                        {/* Summary */}
+                        <div className="bg-muted p-4 rounded-lg">
+                            <p className="text-muted-foreground">{analysis.summary}</p>
+                        </div>
+
+                        {/* Keywords */}
+                        <div className="flex flex-col gap-3">
+                            <div>
+                                <h3 className="font-semibold mb-2"> ✅ Keywords Found </h3>
+                                <div className="flex flex-wrap gap-2">
+                                {analysis.keywords_match.map((keyword, i) => (
+                                <Badge key={i} className="bg-green-100 text-green-800 hover:bg-green-100">
+                                {keyword}
+                                </Badge>
+                                ))}
+                            </div> 
+                        </div>
+                        <div>
+                            <h3 className="font-semibold mb-2">❌ Keywords Missing</h3>
+                            <div className="flex flex-wrap gap-2">
+                                {analysis.keywords_missing.map((keyword, i) => (
+                                <Badge key={i} className="bg-red-100 text-red-800 hover:bg-red-100">
+                                {keyword}
+                                </Badge>
+                                ))}
+                            </div>
+                        </div>
+                        </div>
+
+                        {/* Strengths */}
                         <CardContent className="flex flex-col gap-4">
                             <div>
                                 <h3 className="font-semibold text-green-600 mb-2">Strengths</h3>

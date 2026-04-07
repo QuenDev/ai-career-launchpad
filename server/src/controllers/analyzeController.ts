@@ -53,7 +53,6 @@ export const analyzeResume = async (req: AuthRequest, res: Response) => {
     
     //4. extract response
     const content = completion.choices[0].message.content;
-    console.log("AI response:", content);
 
     //5. parse JSON
     const jsonMatch = content!.match(/\{[\s\S]*\}/);
