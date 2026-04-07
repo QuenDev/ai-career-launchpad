@@ -12,6 +12,9 @@ export const saveAnalysis = async (req: AuthRequest, res: Response) => {
             strengths,
             weaknesses,
             suggestions,
+            keywords_match,
+            keywords_missing,
+            summary,
         } = req.body;
 
         //1. validate inputs 
@@ -32,6 +35,9 @@ export const saveAnalysis = async (req: AuthRequest, res: Response) => {
             strengths,
             weaknesses,
             suggestions,
+            keywords_match,
+            keywords_missing,
+            summary,
        },
     ])
         .select()

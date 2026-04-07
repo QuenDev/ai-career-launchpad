@@ -30,13 +30,18 @@ export const analyzeResume = async (req: AuthRequest, res: Response) => {
     - Score should reflect how well the resume matches the job
     - Provide atleast 2 items for each array
     - Keep each item concise (max 2 sentences)
+    - Check which keywords appear in the resume
+    - summary MUST be a single paragraph of 2-3 sentences
 
     You MUST respond with ONLY a valid JSON object, no other text:
     {
         "score": <number between 0-100>,
+        "summary": "<2-3 sentence overall assessment of the resume match>",
         "strengths": [<array of strings>],
         "weaknesses": [<array of strings>],
-        "suggestions": [<array of strings>]
+        "suggestions": [<array of strings>],
+        "keywords_match": [<array of keywords found in resume>],
+        "keywords_missing": [<array of keywords NOT found in resume>]
     }`;
 
     //3. Call Groq API
@@ -48,6 +53,7 @@ export const analyzeResume = async (req: AuthRequest, res: Response) => {
     
     //4. extract response
     const content = completion.choices[0].message.content;
+    console.log("AI response:", content);
 
     //5. parse JSON
     const jsonMatch = content!.match(/\{[\s\S]*\}/);
