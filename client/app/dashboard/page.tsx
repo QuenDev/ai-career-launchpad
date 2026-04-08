@@ -250,7 +250,7 @@ export default function DashboardPage() {
                         Keywords Found
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
-                        {result.keywords_match.map((keyword, i) => (
+                        {result.keywords_match?.map((keyword, i) => (
                           <Badge
                             key={i}
                             variant="secondary"
@@ -267,7 +267,7 @@ export default function DashboardPage() {
                         Keywords Missing
                       </h3>
                       <div className="flex flex-wrap gap-1.5">
-                        {result.keywords_missing.map((keyword, i) => (
+                        {result.keywords_missing?.map((keyword, i) => (
                           <Badge
                             key={i}
                             variant="secondary"
@@ -287,7 +287,7 @@ export default function DashboardPage() {
                         Strengths
                       </h3>
                       <ul className="space-y-1.5">
-                        {result.strengths.map((s, i) => (
+                        {result.strengths?.map((s, i) => (
                           <li key={i} className="text-xs flex gap-2">
                             <span className="text-green-500">✦</span>
                             {s}
@@ -300,7 +300,7 @@ export default function DashboardPage() {
                         Focus Areas
                       </h3>
                       <ul className="space-y-1.5">
-                        {result.weaknesses.map((w, i) => (
+                        {result.weaknesses?.map((w, i) => (
                           <li
                             key={i}
                             className="text-xs flex gap-2 text-muted-foreground"
@@ -319,7 +319,7 @@ export default function DashboardPage() {
                       Actionable Suggestions
                     </h3>
                     <div className="grid grid-cols-1 gap-2">
-                      {result.suggestions.map((s, i) => (
+                      {result.suggestions?.map((s, i) => (
                         <div
                           key={i}
                           className="text-xs p-3 rounded-lg bg-blue-50/50 border border-blue-100/50 text-blue-800 flex gap-3"
