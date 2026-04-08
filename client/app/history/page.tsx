@@ -46,6 +46,8 @@ export default function HistoryPage() {
             const res = await apiFetch("/history");
             const data = await res.json();
             setHistory(data.history);
+            // Debugging production summary issue
+            console.log("PRODUCTION HISTORY DEBUG:", data.history?.map((a: any) => ({ id: a.id, summary: a.summary })));
        } catch(err) {
         console.error("Failed to fetch history");
        } finally {
@@ -56,24 +58,23 @@ export default function HistoryPage() {
      fetchHistory();
  },[]);
  
- const handleDelete = async (id: number) => {
- 
-    if(!confirm("Are you sure you want to delete this analysis?")) return;
+  const handleDelete = async (id: number) => {
+    if (!confirm("Are you sure you want to delete this analysis?")) return;
 
-        try {
-            const res = await 
-        apiFetch(`/history/${id}`, {method: "DELETE" });
-        
-        if (res.ok) {
-            setHistory(history.filter((item) => item.id !== id));
-            toast.success("Analysis deleted");
-        } else {
-            toast.error("Failed to delete analysis");
-        }
- }      catch (err) {
-        toast.error("Error deleting analysis");
- }
-}; 
+    try {
+      const res = await apiFetch(`/history/${id}`, { method: "DELETE" });
+      const data = await res.json();
+
+      if (res.ok) {
+        setHistory(history.filter((item) => item.id !== id));
+        toast.success("Analysis deleted");
+      } else {
+        toast.error(data.error || "Failed to delete analysis");
+      }
+    } catch (err) {
+      toast.error("Error connecting to server");
+    }
+  }; 
 
 const getScoreColor = (score: number) => {
   if (score >= 75) return "text-green-600 stroke-green-600";
@@ -115,7 +116,7 @@ const getScoreColor = (score: number) => {
                 </p>
             ) : (
                history?.map((analysis) => (
-  <Card key={analysis.id} className="shadow-sm">
+  <Card key={analysis.id} className="shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both">
     <CardHeader className="pb-2">
       <div className="flex items-center justify-between">
         
@@ -207,15 +208,13 @@ const getScoreColor = (score: number) => {
       </div>
     </CardHeader>
 
-    <CardContent className="flex flex-col gap-4 pt-2">
+    <CardContent className="flex flex-col gap-4">
       {/* Summary */}
-      {analysis.summary && (
-        <div className="bg-muted/50 p-3 rounded-xl border border-border/50">
-          <p className="text-xs leading-relaxed text-muted-foreground italic">
-            "{analysis.summary}"
-          </p>
-        </div>
-      )}
+      <div className="bg-muted/50 p-3 rounded-xl border border-border/50">
+        <p className="text-xs leading-relaxed text-muted-foreground italic">
+          "{analysis.summary || "Complete analysis of resume vs. job description match session."}"
+        </p>
+      </div>
 
       {/* Keywords */}
       <div className="flex flex-col gap-2">

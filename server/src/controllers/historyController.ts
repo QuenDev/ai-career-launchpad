@@ -81,25 +81,29 @@ export const getHistory = async (req: AuthRequest, res: Response) => {
         };
 
 //Delete an analysis
-export const deleteAnalysis = async(req: AuthRequest, res: Response) => {
+export const deleteAnalysis = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
 
-        //Security check: make sure the analysis belongs to the logged-in user
-        const{error} = await supabase
-        .from("analyses")
-        .delete()
-        .eq("id", id)
-        .eq("user_id", req.userId);
+        // Security check: make sure the analysis belongs to the logged-in user
+        // We cast id to Number to ensure it matches the database type
+        const { error, count } = await supabase
+            .from("analyses")
+            .delete({ count: 'exact' }) // Add count to verify if anything was deleted
+            .eq("id", Number(id))
+            .eq("user_id", req.userId);
 
-        if(error) {
-            res.status(400).json({ error: error.message });
-            return;
+        if (error) {
+            return res.status(400).json({ error: error.message });
         }
 
-        res.status(200).json({ message: "Analysis deleted successfully"});
-    }   catch(err) {
-        res.status(500).json({ error: "Internal server error"});
+        if (count === 0) {
+            return res.status(404).json({ error: "Analysis not found or unauthorized" });
+        }
+
+        res.status(200).json({ message: "Analysis deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ error: "Internal server error" });
     }
 };
 
