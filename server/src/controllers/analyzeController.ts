@@ -35,13 +35,16 @@ export const analyzeResume = async (req: AuthRequest, res: Response) => {
 
     You MUST respond with ONLY a valid JSON object, no other text:
     {
-        "score": <number between 0-100>,
-        "summary": "<2-3 sentence overall assessment of the resume match>",
+        "score": <overall match score 0-100>,
+        "skills_score": <score for skills match 0-100>,
+        "experience_score": <score for experience match 0-100>,
+        "education_score": <score for education match 0-100>,
+        "summary": "<2-3 sentence overall assessment>",
         "strengths": [<array of strings>],
         "weaknesses": [<array of strings>],
         "suggestions": [<array of strings>],
-        "keywords_match": [<array of keywords found in resume>],
-        "keywords_missing": [<array of keywords NOT found in resume>]
+        "keywords_match": [<array of keywords found>],
+        "keywords_missing": [<array of keywords missing>]
     }`;
 
     //3. Call Groq API

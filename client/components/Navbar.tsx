@@ -7,24 +7,23 @@ import { Button } from "@/components/ui/button";
 import { Moon, Sun, Rocket } from "lucide-react";
 import { useTheme } from "next-themes";
 
-export default function Navbar () {
-    const router = useRouter();
-    const {theme, setTheme} = useTheme();
-    const [loggedIn, setLoggedIn] = useState(false);
-    
-    useEffect(() => {
-        setLoggedIn(isLoggedIn());
-    }, []);
+export default function Navbar() {
+  const router = useRouter();
+  const { theme, setTheme } = useTheme();
+  const [loggedIn, setLoggedIn] = useState(false);
 
-    const handleLogout = () => {
-        removeToken();
-        router.push("/login");
-    };
-    
-    return (
+  useEffect(() => {
+    setLoggedIn(isLoggedIn());
+  }, []);
+
+  const handleLogout = () => {
+    removeToken();
+    router.push("/login");
+  };
+
+  return (
     <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-
         {/* Logo */}
         <div
           className="flex items-center gap-2 cursor-pointer"
@@ -36,7 +35,6 @@ export default function Navbar () {
 
         {/* Right side */}
         <div className="flex items-center gap-3">
-
           {/* Theme toggle */}
           <Button
             variant="ghost"

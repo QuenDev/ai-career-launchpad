@@ -16,7 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI Career Launchpad",
-  description: "Analyze your resume against any job description using AI. Get a match score, strengths, weaknesses and actionable suggestions.",
+  description:
+    "Analyze your resume against any job description using AI. Get a match score, strengths, weaknesses and actionable suggestions.",
 };
 
 export default function RootLayout({
@@ -24,7 +25,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html
       lang="en"

@@ -9,6 +9,9 @@ export const saveAnalysis = async (req: AuthRequest, res: Response) => {
             resume,
             jobDescription,
             score,
+            skills_score,
+            experience_score,
+            education_score,
             strengths,
             weaknesses,
             suggestions,
@@ -32,6 +35,9 @@ export const saveAnalysis = async (req: AuthRequest, res: Response) => {
             resume,
             job_description: jobDescription,
             score,
+            skills_score,
+            experience_score,
+            education_score,
             strengths,
             weaknesses,
             suggestions,
@@ -73,6 +79,30 @@ export const getHistory = async (req: AuthRequest, res: Response) => {
         res.status(500).json({ error: "Internal server error"});
     }
         };
+
+//Delete an analysis
+export const deleteAnalysis = async(req: AuthRequest, res: Response) => {
+    try {
+        const { id } = req.params;
+
+        //Security check: make sure the analysis belongs to the logged-in user
+        const{error} = await supabase
+        .from("analyses")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", req.userId);
+
+        if(error) {
+            res.status(400).json({ error: error.message });
+            return;
+        }
+
+        res.status(200).json({ message: "Analysis deleted successfully"});
+    }   catch(err) {
+        res.status(500).json({ error: "Internal server error"});
+    }
+};
+
     
 
 

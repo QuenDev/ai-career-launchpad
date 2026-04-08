@@ -15,23 +15,26 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className ="min-h-scree flex flex-col">
-    <Navbar />
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
 
-    {/*Hero Section */}
-    <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 bg-gradient-to-b from-background to-muted">
-      <Badge className="mb-4" variant="secondary">
-        Powered by Groq AI
-      </Badge>
-      <h1 className="text-5xl font-bold tracking-tight mb-6 max-w-3xl">
-        Stop applying blindly.
-        <span className="text-primary"> Let AI guided you. </span>
-      </h1>
-      <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
-        Paste or upload your resume and any job description. Get an instant AI match
-        score, strengths, weaknesses and actionable suggestions.
-      </p>
-       <div className="flex gap-4 flex-wrap justify-center">
+      {/*Hero Section */}
+      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 bg-gradient-to-b from-background to-muted">
+        <Badge className="mb-4" variant="secondary">
+          Powered by Groq AI
+        </Badge>
+        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter mb-6 max-w-4xl text-balance">
+          Stop applying blindly.
+          <br />
+          <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            Let AI guide your journey.
+          </span>
+        </h1>
+        <p className="text-xl text-muted-foreground mb-8 max-w-2xl">
+          Paste or upload your resume and any job description. Get an instant AI
+          match score, strengths, weaknesses and actionable suggestions.
+        </p>
+        <div className="flex gap-4 flex-wrap justify-center">
           <Link href="/signup">
             <Button size="lg" className="gap-2">
               Get Started Free
@@ -46,7 +49,7 @@ export default function Home() {
         </div>
       </section>
 
-<Separator />
+      <Separator />
 
       {/* Features Section */}
       <section className="py-20 px-6 bg-background">
@@ -104,8 +107,6 @@ export default function Home() {
       </section>
 
       <Separator />
-
-    <Separator />
 
       {/* How It Works Section */}
       <section className="py-20 px-6 bg-muted">
@@ -165,11 +166,7 @@ export default function Home() {
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
             <Link href="/signup">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="gap-2"
-              >
+              <Button size="lg" variant="secondary" className="gap-2">
                 <CheckCircle className="h-4 w-4" />
                 Start for Free Today
               </Button>
@@ -188,12 +185,9 @@ export default function Home() {
           <p className="text-muted-foreground text-sm">
             Built with Next.js, Express and Groq AI
           </p>
-          <p className="text-muted-foreground text-sm">
-            2026 — Open Source
-          </p>
+          <p className="text-muted-foreground text-sm">2026 — Open Source</p>
         </div>
       </footer>
     </div>
   );
-
 }
