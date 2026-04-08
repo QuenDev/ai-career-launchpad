@@ -19,14 +19,14 @@ export default function Home() {
       <Navbar />
 
       {/*Hero Section */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 bg-gradient-to-b from-background to-muted">
+      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-24 bg-linear-to-b from-background to-muted">
         <Badge className="mb-4" variant="secondary">
           Powered by Groq AI
         </Badge>
         <h1 className="text-5xl md:text-7xl font-extrabold tracking-tighter mb-6 max-w-4xl text-balance">
           Stop applying blindly.
           <br />
-          <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
             Let AI guide your journey.
           </span>
         </h1>

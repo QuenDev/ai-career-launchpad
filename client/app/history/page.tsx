@@ -46,8 +46,6 @@ export default function HistoryPage() {
             const res = await apiFetch("/history");
             const data = await res.json();
             setHistory(data.history);
-            // Debugging production summary issue
-            console.log("PRODUCTION HISTORY DEBUG:", data.history?.map((a: any) => ({ id: a.id, summary: a.summary })));
        } catch(err) {
         console.error("Failed to fetch history");
        } finally {
