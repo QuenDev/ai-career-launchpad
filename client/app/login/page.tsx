@@ -46,7 +46,7 @@ export default function LoginPage() {
     };
 
     return (
-        <main className="min-h-screen flex items-center justify-center bg-slate-100">
+        <main className="min-h-screen flex items-center justify-center bg-muted">
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <CardTitle className="text-2xl text-center">Welcome Back!</CardTitle>
@@ -73,7 +73,7 @@ export default function LoginPage() {
                     <Button onClick={handleLogin} disabled={loading}>
                         {loading ? "Logging in..." : "Login"}
                     </Button>
-                    <p className="text-center text-sm text-slate-500">
+                    <p className="text-center text-sm text-muted-foreground">
                         Don't have an account?{" "}
                         <a href="/signup" className="text-blue-500 hover:underline">
                             Sign up

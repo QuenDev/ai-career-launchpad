@@ -82,12 +82,12 @@ const getScoreColor = (score: number) => {
 
    if (loading) {
   return (
-    <main className="min-h-screen bg-slate-100 p-8">
+    <main className="min-h-screen bg-muted p-8">
       <Navbar />
       <div className="max-w-3xl mx-auto flex flex-col gap-6 mt-8">
         <Skeleton className="h-8 w-48 mx-auto" />
         {[1, 2, 3].map((i) => (
-          <div key={i} className="bg-white rounded-lg p-6 flex flex-col gap-4">
+          <div key={i} className="bg-background rounded-lg p-6 flex flex-col gap-4">
             <Skeleton className="h-6 w-full" />
             <Skeleton className="h-4 w-3/4" />
             <Skeleton className="h-4 w-1/2" />
@@ -102,14 +102,14 @@ const getScoreColor = (score: number) => {
     return (
         <>
         <Navbar />
-        <main className="min-h-screen bg-slate-100 p-8">
+        <main className="min-h-screen bg-muted p-8">
             <h1 className="text-3xl font-bold mb-8 text-center">
                 Analysis History
             </h1>
         
         <div className="max-w-3xl mx-auto flex flex-col gap-6">
             {history?.length === 0 ? (
-                <p className="text-center text-slate-500">
+                <p className="text-center text-muted-foreground">
                     No analysis yet. Go analyze a resume!
                 </p>
             ) : (

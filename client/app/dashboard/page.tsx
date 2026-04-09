@@ -105,7 +105,7 @@ export default function DashboardPage() {
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-slate-50 p-4 md:p-8">
+      <main className="min-h-screen bg-muted p-4 md:p-8">
         <h1 className="text-3xl font-bold mb-10 text-center">
           {" "}
           AI Career Launchpad{" "}
@@ -199,7 +199,7 @@ export default function DashboardPage() {
                         <span>Skills</span>
                         <span>{result.skills_score}%</span>
                       </div>
-                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full transition-all duration-1000 bg-purple-500"
                           style={{ width: `${result.skills_score}%` }}
@@ -212,7 +212,7 @@ export default function DashboardPage() {
                         <span>Experience</span>
                         <span>{result.experience_score}%</span>
                       </div>
-                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full transition-all duration-1000 bg-blue-500"
                           style={{ width: `${result.experience_score}%` }}
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                         <span>Education</span>
                         <span>{result.education_score}%</span>
                       </div>
-                      <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                         <div
                           className="h-full transition-all duration-1000 bg-emerald-500"
                           style={{ width: `${result.education_score}%` }}
@@ -335,11 +335,11 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="h-full min-h-[500px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-2xl bg-white/50 text-muted-foreground transition-all duration-500 hover:bg-white/80 hover:border-primary/30">
+              <div className="h-full min-h-[500px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed rounded-2xl bg-background/50 text-muted-foreground transition-all duration-500 hover:bg-background/80 hover:border-primary/30">
                 <div className="h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
                   <span className="text-3xl">✨</span>
                 </div>
-                <h3 className="text-xl font-bold text-foreground mb-2 italic">
+                <h3 className="text-xl font-bold text-muted-foreground mb-2 italic">
                   Ready to accelerate your career?
                 </h3>
                 <p className="max-w-xs mx-auto text-sm">
