@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { Rocket } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import Navbar from "@/components/Navbar";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -46,43 +49,78 @@ export default function LoginPage() {
     };
 
     return (
-        <main className="min-h-screen flex items-center justify-center bg-muted">
-            <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle className="text-2xl text-center">Welcome Back!</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2">
-                        <Label>Email</Label>
-                        <Input
-                            type="email"
-                            placeholder="you@gmail.com"
-                            value={email}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <Label>Password</Label>
-                        <Input
-                            type="password"
-                            placeholder="password"
-                            value={password}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                        />
-                    </div>
-                    <Button onClick={handleLogin} disabled={loading}>
-                        {loading ? "Logging in..." : "Login"}
-                    </Button>
-                    <p className="text-center text-sm text-muted-foreground">
-                        Don't have an account?{" "}
-                        <a href="/signup" className="text-blue-500 hover:underline">
-                            Sign up
-                        </a>
-                    </p>
-                </CardContent>
-            </Card>
-        </main>
-    );
+  <div className="min-h-screen flex flex-col">
+    <Navbar />
+    <main className="flex-1 flex items-center justify-center px-6 py-12 bg-muted">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center space-y-2">
+          <div className="flex justify-center">
+            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Rocket className="h-6 w-6 text-primary" />
+            </div>
+          </div>
+          <CardTitle className="text-2xl">Welcome back</CardTitle>
+          <p className="text-muted-foreground text-sm">
+            Sign in to your account
+          </p>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <Label>Email</Label>
+            <Input
+              type="email"
+              placeholder="you@email.com"
+              value={email}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <Label>Password</Label>
+            <Input
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setPassword(e.target.value)
+              }
+            />
+          </div>
+          <Button onClick={handleLogin} disabled={loading} className="w-full">
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                or
+              </span>
+            </div>
+          </div>
+
+          <Button variant="outline" className="w-full" disabled>
+            Continue with Google
+            <span className="text-xs text-muted-foreground ml-1">(coming soon)</span>
+          </Button>
+
+          <p className="text-center text-sm text-muted-foreground">
+            Don't have an account?{" "}
+            <a href="/signup" className="text-primary hover:underline">
+              Sign up for free
+            </a>
+          </p>
+          <p className="text-center">
+            <a href="/" className="text-xs text-muted-foreground hover:underline">
+              ← Back to home
+            </a>
+          </p>
+        </CardContent>
+      </Card>
+    </main>
+  </div>
+);
 }
-
-
