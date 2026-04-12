@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Rocket, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
 export default function SignupPage() {
@@ -17,6 +18,27 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Stagger & Animation Variants
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15 }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, x: -20 },
+    show: { opacity: 1, x: 0 }
+  };
+
+  const floating = {
+    animate: {
+      y: [0, -8, 0],
+      transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const }
+    }
+  };
 
   const handleSignUp = async () => {
     setLoading(true);
@@ -50,9 +72,17 @@ export default function SignupPage() {
       {/* Left Side */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary/5 flex-col justify-between p-12 relative overflow-hidden">
 
-        {/* Blob decorations */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-primary/10 rounded-full blur-3xl" />
+        {/* Blob decorations - Living */}
+        <motion.div 
+            animate={{ x: [0, 40, 0], y: [0, 20, 0], scale: [1, 1.1, 1] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" as const }}
+            className="absolute top-0 left-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl opacity-60" 
+        />
+        <motion.div 
+            animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" as const }}
+            className="absolute bottom-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl opacity-60" 
+        />
 
         {/* Logo */}
         <div className="relative flex items-center gap-2">
@@ -61,20 +91,27 @@ export default function SignupPage() {
         </div>
 
         {/* Main content */}
-        <div className="relative space-y-8">
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold leading-tight">
+        <motion.div 
+            variants={container}
+            initial="hidden"
+            animate="show"
+            className="relative space-y-8"
+        >
+          <motion.div variants={item} className="space-y-4">
+            <h1 className="text-4xl font-extrabold leading-tight">
               Start your journey
-              <span className="text-primary block">to your dream job</span>
+              <span className="bg-linear-to-r from-primary via-indigo-500 to-blue-600 bg-clip-text text-transparent block">
+                to your dream job
+              </span>
             </h1>
             <p className="text-muted-foreground text-lg">
               Join thousands of job seekers who use AI
               to improve their resumes and land more interviews.
             </p>
-          </div>
+          </motion.div>
 
           {/* Feature bullets */}
-          <div className="space-y-3">
+          <motion.div variants={item} className="space-y-3">
             {[
               "Free to use — no credit card needed",
               "AI match score in seconds",
@@ -83,23 +120,26 @@ export default function SignupPage() {
             ].map((feature, i) => (
               <div key={i} className="flex items-center gap-3">
                 <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-sm">{feature}</span>
+                <span className="text-sm font-medium">{feature}</span>
               </div>
             ))}
-          </div>
+          </motion.div>
 
           {/* Floating badges */}
-          <div className="flex flex-wrap gap-2">
+          <motion.div variants={item} className="flex flex-wrap gap-2">
             {["React", "TypeScript", "Node.js", "Python", "AWS", "SQL"].map((skill, i) => (
-              <span
+              <motion.span
                 key={i}
-                className="px-3 py-1 rounded-full text-xs font-medium bg-background/80 border border-border"
+                variants={floating}
+                animate="animate"
+                transition={{ delay: i * 0.1 }}
+                className="px-3 py-1 rounded-full text-xs font-medium bg-background/80 border border-border shadow-sm backdrop-blur-sm"
               >
                 {skill}
-              </span>
+              </motion.span>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Stats */}
         <div className="relative grid grid-cols-3 gap-4 bg-background/50 rounded-xl p-4 border border-border/50">
@@ -139,7 +179,12 @@ export default function SignupPage() {
 
         {/* Form */}
         <div className="flex-1 flex items-center justify-center px-6 py-8">
-          <div className="w-full max-w-sm space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", damping: 20, stiffness: 100 }}
+            className="w-full max-w-sm space-y-6"
+          >
             <div className="space-y-2">
               <h2 className="text-3xl font-bold">Create account</h2>
               <p className="text-muted-foreground">
@@ -227,7 +272,7 @@ export default function SignupPage() {
                 ← Back to home
               </Link>
             </p>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>

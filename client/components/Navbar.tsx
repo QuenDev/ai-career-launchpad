@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { removeToken, isLoggedIn } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Rocket, Menu } from "lucide-react";
+import { Moon, Sun, Rocket, Menu, LayoutDashboard, History, LogIn, UserPlus, LogOut } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
   Sheet,
@@ -96,61 +96,83 @@ export default function Navbar() {
 
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="hover:bg-primary/10 transition-colors">
+                <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-64">
+            <SheetContent side="right" className="w-[300px] border-l border-primary/10 bg-background/80 backdrop-blur-xl">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              <div className="flex flex-col gap-4 mt-8">
+              
+              {/* Drawer Header */}
+              <div className="flex flex-col gap-6 mt-4 h-full">
                 <div
-                  className="flex items-center gap-2 cursor-pointer mb-4"
+                  className="flex items-center gap-3 cursor-pointer pb-6 border-b border-border/50"
                   onClick={() => navigate("/")}
                 >
-                  <Rocket className="h-5 w-5 text-primary" />
-                  <span className="font-bold">AI Career Launchpad</span>
+                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Rocket className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-lg leading-none">AI Career</span>
+                    <span className="text-xs text-muted-foreground uppercase tracking-widest font-black">Launchpad</span>
+                  </div>
                 </div>
 
-                {loggedIn ? (
-                  <>
+                {/* Navigation Links */}
+                <div className="flex flex-col gap-2 flex-grow">
+                  {loggedIn ? (
+                    <>
+                      <Button
+                        variant="ghost"
+                        className="justify-start h-12 gap-3 text-base font-medium px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl"
+                        onClick={() => navigate("/dashboard")}
+                      >
+                        <LayoutDashboard className="h-5 w-5" />
+                        Dashboard
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="justify-start h-12 gap-3 text-base font-medium px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl"
+                        onClick={() => navigate("/history")}
+                      >
+                        <History className="h-5 w-5" />
+                        History
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        variant="ghost"
+                        className="justify-start h-12 gap-3 text-base font-medium px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl"
+                        onClick={() => navigate("/login")}
+                      >
+                        <LogIn className="h-5 w-5" />
+                        Login
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="justify-start h-12 gap-3 text-base font-medium px-4 hover:bg-primary/5 hover:text-primary transition-all rounded-xl"
+                        onClick={() => navigate("/signup")}
+                      >
+                        <UserPlus className="h-5 w-5" />
+                        Get Started
+                      </Button>
+                    </>
+                  )}
+                </div>
+
+                {/* Drawer Footer */}
+                {loggedIn && (
+                  <div className="pt-6 border-t border-border/50 mt-auto pb-8">
                     <Button
                       variant="ghost"
-                      className="justify-start"
-                      onClick={() => navigate("/dashboard")}
-                    >
-                      Dashboard
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      className="justify-start"
-                      onClick={() => navigate("/history")}
-                    >
-                      History
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      className="justify-start"
+                      className="w-full justify-start h-12 gap-3 text-base font-medium px-4 text-red-500 hover:bg-red-50 hover:text-red-600 transition-all rounded-xl border border-red-100/50"
                       onClick={handleLogout}
                     >
-                      Logout
+                      <LogOut className="h-5 w-5" />
+                      Sign Out
                     </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      variant="ghost"
-                      className="justify-start"
-                      onClick={() => navigate("/login")}
-                    >
-                      Login
-                    </Button>
-                    <Button
-                      className="justify-start"
-                      onClick={() => navigate("/signup")}
-                    >
-                      Get Started
-                    </Button>
-                  </>
+                  </div>
                 )}
               </div>
             </SheetContent>
