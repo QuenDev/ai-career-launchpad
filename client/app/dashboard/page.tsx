@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { isLoggedIn } from "@/lib/auth";
 import { apiFetch } from "@/lib/api";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -434,6 +435,7 @@ export default function DashboardPage() {
           </motion.div>
         </motion.div>
       </main>
+      <Footer />
     </>
   );
 }

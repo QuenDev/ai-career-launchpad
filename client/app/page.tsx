@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -381,21 +382,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* Footer */}
-      <footer className="py-8 px-6 bg-background border-t">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Rocket className="h-5 w-5 text-primary" />
-            <span className="font-semibold">AI Career Launchpad</span>
-          </div>
-          <p className="text-muted-foreground text-sm">
-            Built with Next.js, Express and Groq AI
-          </p>
-          <p className="text-muted-foreground text-sm">
-            2026 — Open Source
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

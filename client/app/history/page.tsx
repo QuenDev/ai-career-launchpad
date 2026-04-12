@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 interface Analysis {
     id:  number;
@@ -345,6 +346,7 @@ const getScoreColor = (score: number) => {
         </motion.div>
 
         </main>
+        <Footer />
         </>
     );
 
