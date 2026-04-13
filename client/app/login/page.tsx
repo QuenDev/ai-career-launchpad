@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import type { Metadata } from "next";
 import { apiFetch } from "@/lib/api";
 import { setToken } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,9 @@ import { Rocket, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/lib/supabase";
 import Link  from "next/link";
+
+//Metadata
+
 
 export default function LoginPage() {
     const router = useRouter();

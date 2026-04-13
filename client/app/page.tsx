@@ -9,7 +9,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
-  Rocket,
   Brain,
   Target,
   History,
@@ -20,6 +19,8 @@ import {
   Key,
 } from "lucide-react";
 import Link from "next/link";
+
+
 
 // Reusable fade in animation
 const fadeUp = {

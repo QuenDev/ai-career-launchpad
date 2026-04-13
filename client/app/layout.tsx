@@ -15,9 +15,53 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Career Launchpad",
+  metadataBase: new URL("https://ai-career-launchpad.vercel.app"),
+  title: {
+    default: "AI Career Launchpad",
+    template: "%s | AI Career Launchpad",
+  },
   description:
-    "Analyze your resume against any job description using AI. Get a match score, strengths, weaknesses and actionable suggestions.",
+    "Analyze your resume against job descriptions with AI. Get match scores, skill gaps, keyword insights, and actionable suggestions to improve your applications.",
+  keywords: [
+    "AI resume analyzer",
+    "resume checker",
+    "job match score",
+    "ATS resume optimization",
+    "career tools",
+    "resume analysis",
+    "job application tool",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "AI Career Launchpad",
+    description:
+      "Analyze your resume against job descriptions with AI and get match scores, keyword insights, and actionable suggestions.",
+    url: "https://ai-career-launchpad.vercel.app",
+    siteName: "AI Career Launchpad",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "AI Career Launchpad",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "AI Career Launchpad",
+    description:
+      "Analyze your resume against job descriptions with AI and improve your applications.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
