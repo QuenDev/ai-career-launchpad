@@ -79,3 +79,76 @@ export const login = async (req: Request, res: Response) => {
     }
 };
 
+export const googleLogin = async (req: Request, res: Response) => {
+  try {
+    const { accessToken } = req.body;
+
+    if (!accessToken) {
+      res.status(400).json({ error: "Access token is required" });
+      return;
+    }
+
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser(accessToken);
+
+    if (error || !user || !user.email) {
+      res.status(401).json({ error: "Invalid Google session" });
+      return;
+    }
+
+    let dbUser = null;
+
+    const { data: existingUser, error: findError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", user.email)
+      .maybeSingle();
+
+    if (findError) {
+      res.status(500).json({ error: findError.message });
+      return;
+    }
+
+    if (existingUser) {
+      dbUser = existingUser;
+    } else {
+      const { data: newUser, error: insertError } = await supabase
+        .from("users")
+        .insert([
+          {
+            email: user.email,
+            password: null,
+          },
+        ])
+        .select()
+        .single();
+
+      if (insertError) {
+        res.status(500).json({ error: insertError.message });
+        return;
+      }
+
+      dbUser = newUser;
+    }
+
+    const token = jwt.sign(
+      { userId: dbUser.id, email: dbUser.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    );
+
+    res.status(200).json({
+      token,
+      user: {
+        id: dbUser.id,
+        email: dbUser.email,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+

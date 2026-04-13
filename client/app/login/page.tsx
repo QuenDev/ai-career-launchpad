@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Rocket, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/lib/supabase";
 import Link  from "next/link";
 
 export default function LoginPage() {
@@ -46,6 +47,20 @@ export default function LoginPage() {
             }
         }
     };
+
+    //Google login
+  const handleGoogleLogin = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
+
+  if (error) {
+    toast.error(error.message);
+  }
+};
 
     //Handle Login
     const handleLogin = async () => {
@@ -268,11 +283,8 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full" disabled>
-                Continue with Google
-                <span className="text-xs text-muted-foreground ml-1">
-                  (coming soon)
-                </span>
+              <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
+               Continue with Google
               </Button>
             </div>
 

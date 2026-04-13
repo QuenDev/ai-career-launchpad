@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Rocket, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
 export default function SignupPage() {
@@ -40,31 +41,67 @@ export default function SignupPage() {
     }
   };
 
-  const handleSignUp = async () => {
-    setLoading(true);
-    toast.dismiss();
+  //
+  const handleGoogleLogin = async () => {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
+  });
 
-    try {
-      const res = await apiFetch("/auth/signup", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
+  if (error) {
+    toast.error(error.message);
+  }
+};
 
-      const data = await res.json();
 
-      if (!res.ok) {
-        toast.error(data.error);
-        return;
-      }
+const handleSignUp = async () => {
+  toast.dismiss();
 
-      toast.success("Account created! Please login.");
-      router.push("/login");
-    } catch (err) {
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
+   // validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!emailRegex.test(email)) {
+    toast.error("Please enter a valid email address.");
+    return;
+  }
+
+     // validate email format
+  if (password.length < 8) {
+    toast.error("Password must be at least 8 characters.");
+    return;
+  }
+
+  // 2. THEN set loading
+  setLoading(true);
+
+  try {
+    // 3. API CALL
+    const res = await apiFetch("/auth/signup", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    // 4. HANDLE ERROR RESPONSE
+    if (!res.ok) {
+      toast.error(data?.error || "Signup failed");
+      return;
     }
-  };
+
+    // 5. SUCCESS
+    toast.success("Account created! Please login.");
+    router.push("/login");
+  } catch (err) {
+    // 6. NETWORK / SERVER ERROR
+    toast.error("Something went wrong. Please try again.");
+  } finally {
+    // 7. ALWAYS STOP LOADING
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex">
@@ -248,13 +285,11 @@ export default function SignupPage() {
                   </span>
                 </div>
               </div>
+            
+            <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
+              Continue with Google
+            </Button>
 
-              <Button variant="outline" className="w-full" disabled>
-                Continue with Google
-                <span className="text-xs text-muted-foreground ml-1">
-                  (coming soon)
-                </span>
-              </Button>
             </div>
 
             <p className="text-center text-sm text-muted-foreground">
