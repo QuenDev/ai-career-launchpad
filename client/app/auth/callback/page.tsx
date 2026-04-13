@@ -17,7 +17,8 @@ export default function AuthCallbackPage() {
       let session = null;
 
       if (code) {
-        const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+        const { data, error } =
+          await supabase.auth.exchangeCodeForSession(code);
 
         if (error || !data.session) {
           toast.error(error?.message || "Failed to create session");
@@ -39,13 +40,16 @@ export default function AuthCallbackPage() {
         session = data.session;
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ accessToken: session.access_token }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/google`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ accessToken: session.access_token }),
+        }
+      );
 
       const result = await res.json();
 

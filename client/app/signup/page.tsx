@@ -7,309 +7,298 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Rocket, Eye, EyeOff, CheckCircle } from "lucide-react";
+import {
+  Rocket,
+  Eye,
+  EyeOff,
+  CheckCircle2,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import Footer from "@/components/Footer";
 
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Stagger & Animation Variants
   const container = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.15 }
-    }
+      transition: { staggerChildren: 0.1 },
+    },
   };
 
   const item = {
-    hidden: { opacity: 0, x: -20 },
-    show: { opacity: 1, x: 0 }
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 },
   };
 
-  const floating = {
-    animate: {
-      y: [0, -8, 0],
-      transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const }
+  const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      toast.error(error.message);
+      setGoogleLoading(false);
     }
   };
 
-  //
-  const handleGoogleLogin = async () => {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
-    },
-  });
+  const handleSignUp = async () => {
+    toast.dismiss();
 
-  if (error) {
-    toast.error(error.message);
-  }
-};
-
-
-const handleSignUp = async () => {
-  toast.dismiss();
-
-   // validate email format
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!emailRegex.test(email)) {
-    toast.error("Please enter a valid email address.");
-    return;
-  }
-
-     // validate email format
-  if (password.length < 8) {
-    toast.error("Password must be at least 8 characters.");
-    return;
-  }
-
-  // 2. THEN set loading
-  setLoading(true);
-
-  try {
-    // 3. API CALL
-    const res = await apiFetch("/auth/signup", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-
-    // 4. HANDLE ERROR RESPONSE
-    if (!res.ok) {
-      toast.error(data?.error || "Signup failed");
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address.");
       return;
     }
 
-    // 5. SUCCESS
-    toast.success("Account created! Please login.");
-    router.push("/login");
-  } catch (err) {
-    // 6. NETWORK / SERVER ERROR
-    toast.error("Something went wrong. Please try again.");
-  } finally {
-    // 7. ALWAYS STOP LOADING
-    setLoading(false);
-  }
-};
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await apiFetch("/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data?.error || "Signup failed");
+        return;
+      }
+
+      toast.success("Account created! Please login.");
+      router.push("/login");
+    } catch (err) {
+      toast.error("Error connecting to server");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="relative min-h-screen flex flex-col font-sans selection:bg-primary/30 overflow-x-hidden">
+      {/* Shared Background */}
+      <div className="fixed inset-0 -z-50 mesh-gradient opacity-90" />
+      <div className="fixed inset-0 -z-40 bg-[url('/grid.svg')] bg-center mask-[linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-10 dark:opacity-20" />
 
-      {/* Left Side */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary/5 flex-col justify-between p-12 relative overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row h-full">
+        {/* Left Side: Showcase */}
+        <div className="hidden lg:flex lg:w-[45%] flex-col justify-center p-12 relative border-r border-border/10 bg-background/5">
+          <div className="absolute top-12 left-12 z-10">
+            <Link href="/" className="inline-flex items-center gap-3 group">
+              <div className="h-10 w-10 rounded-xl bg-primary/20 backdrop-blur-md border border-primary/20 flex items-center justify-center group-hover:scale-110 transition-all shadow-[0_0_15px_rgba(var(--primary),0.2)]">
+                <Rocket className="h-5 w-5 text-primary" />
+              </div>
+              <span className="font-black text-2xl tracking-tighter uppercase italic text-foreground whitespace-nowrap">
+                AI CAREER LAUNCHPAD
+              </span>
+            </Link>
+          </div>
 
-        {/* Blob decorations - Living */}
-        <motion.div 
-            animate={{ x: [0, 40, 0], y: [0, 20, 0], scale: [1, 1.1, 1] }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" as const }}
-            className="absolute top-0 left-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl opacity-60" 
-        />
-        <motion.div 
-            animate={{ x: [0, -30, 0], y: [0, 40, 0], scale: [1, 1.2, 1] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" as const }}
-            className="absolute bottom-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl opacity-60" 
-        />
-
-        {/* Logo */}
-        <div className="relative flex items-center gap-2">
-          <Rocket className="h-8 w-8 text-primary" />
-          <span className="font-bold text-xl">AI Career Launchpad</span>
-        </div>
-
-        {/* Main content */}
-        <motion.div 
+          <motion.div
             variants={container}
             initial="hidden"
             animate="show"
-            className="relative space-y-8"
-        >
-          <motion.div variants={item} className="space-y-4">
-            <h1 className="text-4xl font-extrabold leading-tight">
-              Start your journey
-              <span className="bg-linear-to-r from-primary via-indigo-500 to-blue-600 bg-clip-text text-transparent block">
-                to your dream job
-              </span>
-            </h1>
-            <p className="text-muted-foreground text-lg">
-              Join thousands of job seekers who use AI
-              to improve their resumes and land more interviews.
-            </p>
-          </motion.div>
-
-          {/* Feature bullets */}
-          <motion.div variants={item} className="space-y-3">
-            {[
-              "Free to use — no credit card needed",
-              "AI match score in seconds",
-              "Keyword gap analysis",
-              "Track your improvement over time",
-            ].map((feature, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-sm font-medium">{feature}</span>
-              </div>
-            ))}
-          </motion.div>
-
-          {/* Floating badges */}
-          <motion.div variants={item} className="flex flex-wrap gap-2">
-            {["React", "TypeScript", "Node.js", "Python", "AWS", "SQL"].map((skill, i) => (
-              <motion.span
-                key={i}
-                variants={floating}
-                animate="animate"
-                transition={{ delay: i * 0.1 }}
-                className="px-3 py-1 rounded-full text-xs font-medium bg-background/80 border border-border shadow-sm backdrop-blur-sm"
+            className="space-y-8 relative z-10 max-w-md"
+          >
+            <motion.div variants={item} className="space-y-4">
+              <Badge
+                variant="outline"
+                className="px-3 py-1 border-primary/20 bg-primary/10 text-primary backdrop-blur-sm"
               >
-                {skill}
-              </motion.span>
-            ))}
+                <Sparkles className="w-3 h-3 mr-2" />
+                Begin Your Journey
+              </Badge>
+              <h1 className="text-5xl xl:text-6xl font-black tracking-tighter leading-[0.9] text-foreground">
+                UNLEASH YOUR <br />
+                <span className="text-gradient uppercase">POTENTIAL.</span>
+              </h1>
+              <p className="text-muted-foreground text-lg font-medium leading-relaxed">
+                Join the professional community using AI to dominate the modern
+                job market.
+              </p>
+            </motion.div>
+
+            <motion.div variants={item} className="space-y-3">
+              {[
+                "AI-Powered Profile Ranking",
+                "Deep Keyword Gap Analysis",
+                "Actionable Improvement Steps",
+              ].map((feature, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-3 text-sm font-bold uppercase tracking-tight text-foreground/80"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                  <span>{feature}</span>
+                </div>
+              ))}
+            </motion.div>
           </motion.div>
-        </motion.div>
-
-        {/* Stats */}
-        <div className="relative grid grid-cols-3 gap-4 bg-background/50 rounded-xl p-4 border border-border/50">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-primary">500+</p>
-            <p className="text-xs text-muted-foreground">Resumes analyzed</p>
-          </div>
-          <div className="text-center border-x border-border/50">
-            <p className="text-2xl font-bold text-primary">98%</p>
-            <p className="text-xs text-muted-foreground">Satisfaction rate</p>
-          </div>
-          <div className="text-center">
-            <p className="text-2xl font-bold text-primary">Free</p>
-            <p className="text-xs text-muted-foreground">No credit card</p>
-          </div>
         </div>
-      </div>
 
-      {/* Right Side */}
-      <div className="w-full lg:w-1/2 flex flex-col">
-
-        {/* Top nav */}
-        <div className="flex justify-between items-center p-6">
-          <Link href="/" className="flex items-center gap-2 lg:hidden">
-            <Rocket className="h-5 w-5 text-primary" />
-            <span className="font-bold">AI Career Launchpad</span>
-          </Link>
-          <div className="ml-auto">
-            <span className="text-sm text-muted-foreground mr-2">
-              Have an account?
-            </span>
-            <Link href="/login">
-              <Button variant="outline" size="sm">Login</Button>
+        {/* Right Side: Auth Card */}
+        <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-12 relative">
+          {/* Mobile Header */}
+          <div className="lg:hidden w-full max-w-lg mb-8 text-center sm:text-left">
+            <Link href="/" className="inline-flex items-center gap-2 group">
+              <Rocket className="h-6 w-6 text-primary" />
+              <span className="font-black text-xl tracking-tighter uppercase italic">
+                AI CAREER LAUNCHPAD
+              </span>
             </Link>
           </div>
-        </div>
 
-        {/* Form */}
-        <div className="flex-1 flex items-center justify-center px-6 py-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: "spring", damping: 20, stiffness: 100 }}
-            className="w-full max-w-sm space-y-6"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-lg"
           >
-            <div className="space-y-2">
-              <h2 className="text-3xl font-bold">Create account</h2>
-              <p className="text-muted-foreground">
-                Start analyzing your resume today
-              </p>
-            </div>
+            <div className="glass rounded-[2rem] p-8 md:p-12 border-border/40 shadow-2xl relative overflow-hidden group">
+              <div className="space-y-8 relative z-10">
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-black tracking-tighter uppercase italic">
+                    Create Account
+                  </h2>
+                  <p className="text-muted-foreground text-sm font-medium">
+                    Start your professional advancement today
+                  </p>
+                </div>
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  type="email"
-                  placeholder="you@email.com"
-                  value={email}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setEmail(e.target.value)
-                  }
-                />
-              </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                      Email Address
+                    </Label>
+                    <Input
+                      type="email"
+                      placeholder="user@example.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="h-12 bg-background/40 border-border/50 rounded-xl focus:ring-primary/20 backdrop-blur-md"
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label>Password</Label>
-                <div className="relative">
-                  <Input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="min 8 characters"
-                    value={password}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setPassword(e.target.value)
-                    }
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                      Password
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-12 bg-background/40 border-border/50 rounded-xl focus:ring-primary/20 backdrop-blur-md pr-12"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleSignUp}
+                    disabled={loading}
+                    className="w-full h-12 rounded-xl font-black uppercase tracking-widest shadow-lg shadow-primary/20 active:scale-95 transition-all mt-2"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                    {loading ? "Initializing..." : "Get Started"}
+                    {!loading && <ArrowRight className="w-4 h-4 ml-2" />}
+                  </Button>
+
+                  <div className="relative py-4">
+                    <div className="absolute inset-0 flex items-center">
+                      <Separator className="bg-border/20" />
+                    </div>
+                    <div className="relative flex justify-center text-[9px] uppercase font-black tracking-[0.2em]">
+                      <span className="bg-background/0 px-4 text-muted-foreground/60 backdrop-blur-md italic">
+                        Enterprise Grade Security
+                      </span>
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="h-12 w-full rounded-xl border-border/60 bg-background/20 backdrop-blur-md hover:bg-background/40 font-bold"
+                    onClick={handleGoogleLogin}
+                    disabled={googleLoading}
+                  >
+                    {googleLoading ? (
+                      "Connecting..."
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <>
+                        <svg className="h-4 w-4 mr-3" viewBox="0 0 24 24">
+                          <path
+                            fill="currentColor"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                          />
+                          <path
+                            fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                          />
+                          <path
+                            fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                          />
+                          <path
+                            fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                          />
+                        </svg>
+                        Sign up with Google
+                      </>
                     )}
-                  </button>
+                  </Button>
+                </div>
+
+                <div className="pt-4 text-center space-y-4">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    Already part of the network?{" "}
+                    <Link
+                      href="/login"
+                      className="text-primary font-black hover:opacity-70 transition-opacity text-sm"
+                    >
+                      LOGIN HERE
+                    </Link>
+                  </p>
                 </div>
               </div>
-
-              <Button
-                onClick={handleSignUp}
-                disabled={loading}
-                className="w-full"
-              >
-                {loading ? "Creating account..." : "Create Account"}
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <Separator />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    or continue with
-                  </span>
-                </div>
-              </div>
-            
-            <Button variant="outline" className="w-full" onClick={handleGoogleLogin}>
-              Continue with Google
-            </Button>
-
             </div>
-
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link href="/login" className="text-primary hover:underline">
-                Login here →
-              </Link>
-            </p>
-
-            <p className="text-center">
-              <Link
-                href="/"
-                className="text-xs text-muted-foreground hover:underline"
-              >
-                ← Back to home
-              </Link>
-            </p>
           </motion.div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

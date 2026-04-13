@@ -1,6 +1,10 @@
 import { Router } from "express";
-import { saveAnalysis, getHistory, deleteAnalysis } from "../controllers/historyController";
-import { authMiddleware} from "../middleware/authMiddleware";
+import {
+  saveAnalysis,
+  getHistory,
+  deleteAnalysis,
+} from "../controllers/historyController";
+import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
 

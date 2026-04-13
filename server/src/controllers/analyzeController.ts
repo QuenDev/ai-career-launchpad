@@ -3,17 +3,19 @@ import Groq from "groq-sdk";
 import { AuthRequest } from "../middleware/authMiddleware";
 
 const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY!,
+  apiKey: process.env.GROQ_API_KEY!,
 });
 
 export const analyzeResume = async (req: AuthRequest, res: Response) => {
-    try {
-        const { resume, jobDescription } = req.body;
-    
+  try {
+    const { resume, jobDescription } = req.body;
+
     //1. validate inputs
-    if(!resume || !jobDescription) {
-        res.status(400).json({error: "Resume and job description are required" });
-        return;
+    if (!resume || !jobDescription) {
+      res
+        .status(400)
+        .json({ error: "Resume and job description are required" });
+      return;
     }
 
     //2.  build prompt
@@ -49,26 +51,27 @@ export const analyzeResume = async (req: AuthRequest, res: Response) => {
 
     //3. Call Groq API
     const completion = await groq.chat.completions.create({
-        model: "llama-3.1-8b-instant",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.5,
+      model: "llama-3.1-8b-instant",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.5,
     });
-    
+
     //4. extract response
     const content = completion.choices[0].message.content;
 
     //5. parse JSON
     const jsonMatch = content!.match(/\{[\s\S]*\}/);
-    if(!jsonMatch) {
-        res.status(500).json({ error: "AI returned a invalid response. Please try again."})
-        return;
+    if (!jsonMatch) {
+      res
+        .status(500)
+        .json({ error: "AI returned a invalid response. Please try again." });
+      return;
     }
-    
+
     const result = JSON.parse(jsonMatch[0]);
 
     res.status(200).json(result);
-    } catch (err) {
-
+  } catch (err) {
     res.status(500).json({ error: "Analysis failed. Please try again." });
-    }
+  }
 };

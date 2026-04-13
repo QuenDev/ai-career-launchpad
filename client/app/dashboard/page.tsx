@@ -8,10 +8,21 @@ import { apiFetch } from "@/lib/api";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
+import {
+  FileText,
+  Target,
+  Sparkles,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
+  Lightbulb,
+  Hash,
+  ArrowLeft,
+} from "lucide-react";
 
 interface AnalysisResult {
   score: number;
@@ -26,14 +37,11 @@ interface AnalysisResult {
   keywords_missing: string[];
 }
 
-const getScoreColor = (score: number) => {
-  if (score >= 75) return "text-green-600 stroke-green-600";
-  if (score >= 50) return "text-yellow-500 stroke-yellow-500";
-  return "text-red-600 stroke-red-600";
-};
+type Phase = "input" | "analyzing" | "result";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const [phase, setPhase] = useState<Phase>("input");
   const [resume, setResume] = useState("");
   const [jobDescription, setJobDescription] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
@@ -43,25 +51,9 @@ export default function DashboardPage() {
     if (!isLoggedIn()) {
       router.push("/login");
     }
-  }, []);
-
-  // Animation Variants
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 }
-  };
+  }, [router]);
 
   const handleAnalyze = async () => {
-    toast.dismiss();
-    //validate inputs
     if (resume.trim().length < 50) {
       toast.error("Resume is too short. Please paste your full resume.");
       return;
@@ -69,12 +61,13 @@ export default function DashboardPage() {
 
     if (jobDescription.trim().length < 30) {
       toast.error(
-        "Job descriptions is too short. Please paste the full job description"
+        "Job description is too short. Please paste the full job description."
       );
       return;
     }
+
     setLoading(true);
-    setResult(null);
+    setPhase("analyzing");
 
     try {
       const res = await apiFetch("/analyze", {
@@ -85,357 +78,451 @@ export default function DashboardPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.error);
+        toast.error(data.error || "Analysis failed");
+        setPhase("input");
         return;
       }
 
       setResult(data);
+      setPhase("result");
 
-      //auto save analysis
-      await apiFetch("/history/save", {
+      apiFetch("/history/save", {
         method: "POST",
         body: JSON.stringify({
           resume,
           jobDescription,
-          score: data.score,
-          skills_score: data.skills_score,
-          experience_score: data.experience_score,
-          education_score: data.education_score,
-          strengths: data.strengths,
-          weaknesses: data.weaknesses,
-          suggestions: data.suggestions,
-          keywords_match: data.keywords_match,
-          keywords_missing: data.keywords_missing,
-          summary: data.summary,
+          ...data,
         }),
-      });
+      }).catch(console.error);
 
-      toast.success("Analysis saved to history!");
+      toast.success("Analysis complete!");
     } catch (err) {
       toast.error("Something went wrong. Please try again.");
+      setPhase("input");
     } finally {
       setLoading(false);
     }
   };
 
+  const getScoreColor = (score: number) => {
+    if (score >= 75) return "text-emerald-500 dark:text-emerald-400";
+    if (score >= 50) return "text-amber-500 dark:text-amber-400";
+    return "text-rose-500 dark:text-rose-400";
+  };
+
   return (
-    <>
+    <div className="relative min-h-screen flex flex-col font-sans selection:bg-primary/30">
       <Navbar />
-      <main className="min-h-screen bg-muted/30 p-4 md:p-8 relative overflow-hidden">
-        
-        {/* Consistent Background Blobs */}
-        <motion.div
-          animate={{ x: [0, 50, 0], y: [0, 30, 0], scale: [1, 1.2, 1] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" as const }}
-          className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl opacity-50 -z-10"
-        />
-        <motion.div
-          animate={{ x: [0, -40, 0], y: [0, 60, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" as const }}
-          className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl opacity-50 -z-10"
-        />
 
-        <motion.h1 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-4xl font-extrabold mb-10 text-center tracking-tight"
-        >
-          <span className="bg-linear-to-r from-primary via-indigo-500 to-blue-600 bg-clip-text text-transparent">
-            AI Career Launchpad
-          </span>
-        </motion.h1>
+      <div className="fixed inset-0 -z-50 mesh-gradient opacity-90" />
+      <div className="fixed inset-0 -z-40 bg-[url('/grid.svg')] bg-center mask-[linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-10 dark:opacity-20" />
 
-        <motion.div 
-          variants={container}
-          initial="hidden"
-          animate="show"
-          className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10"
-        >
-          <motion.div variants={item} className="lg:col-span-5 flex flex-col gap-6">
-            <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold">Paste your Resume</CardTitle>
-              </CardHeader>
+      <main className="flex-1 transition-all duration-500 pt-20 pb-12 px-4 md:px-8">
+        <div className="max-w-7xl mx-auto">
+          <AnimatePresence mode="wait">
+            {phase === "input" && (
+              <motion.div
+                key="input-phase"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start"
+              >
+                <div className="lg:col-span-4 space-y-6">
+                  <div className="space-y-3">
+                    <Badge
+                      variant="outline"
+                      className="px-3 py-1 border-primary/20 bg-primary/5 text-foreground/80 backdrop-blur-sm"
+                    >
+                      <Sparkles className="w-3 h-3 mr-2" />
+                      AI-Powered Resume Review
+                    </Badge>
 
-              <CardContent>
-                <Textarea
-                  placeholder="Paste your resume here..."
-                  className="min-h-40 bg-background/50 backdrop-blur-sm focus-visible:ring-primary/20"
-                  value={resume}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    setResume(e.target.value)
-                  }
-                />
-              </CardContent>
-            </Card>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
+                      Analyze Your{" "}
+                      <span className="text-gradient">Resume Match.</span>
+                    </h1>
 
-            <Card className="border-border/50 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="text-lg font-bold">Paste Job Description</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  placeholder="Paste the job description here..."
-                  className="min-h-40 bg-background/50 backdrop-blur-sm focus-visible:ring-primary/20"
-                  value={jobDescription}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                    setJobDescription(e.target.value)
-                  }
-                />
-              </CardContent>
-            </Card>
+                    <p className="text-muted-foreground text-lg leading-relaxed max-w-md">
+                      Compare your resume against a target role and get
+                      AI-powered match insights in seconds.
+                    </p>
+                  </div>
 
-            <Button 
-                onClick={handleAnalyze} 
-                disabled={loading}
-                className="h-12 text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/30 active:scale-[0.98] transition-all"
-            >
-              {loading ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Analyzing...
-                </span>
-              ) : "Analyze Resume"}
-            </Button>
-          </motion.div>
+                  <div className="p-1 rounded-2xl bg-background/50 border border-border/50 backdrop-blur-xl">
+                    <div className="flex flex-col gap-1 p-4 bg-background/40 rounded-xl">
+                      <div className="flex items-center gap-3 text-sm font-medium text-foreground">
+                        <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-primary">
+                          1
+                        </div>
+                        Paste your resume
+                      </div>
 
-          <motion.div variants={item} className="lg:col-span-7">
-            <AnimatePresence mode="wait">
-              {result ? (
-                <motion.div
-                  key="result"
-                  initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ type: "spring", damping: 20, stiffness: 100 }}
-                >
-                  <Card className="sticky top-8 shadow-xl border-primary/10 backdrop-blur-xl bg-background/80">
-                    <CardHeader className="flex flex-col items-center pb-2 bg-muted/30">
-                      <div className="relative h-32 w-32 mb-2">
-                        {/* Background Circle */}
-                        <svg className="h-full w-full" viewBox="0 0 100 100">
-                          <circle
-                            className="stroke-muted/50"
-                            strokeWidth="8"
-                            fill="transparent"
-                            r="40"
-                            cx="50"
-                            cy="50"
-                          />
-                          {/* Progress Circle */}
-                          <motion.circle
-                            initial={{ strokeDashoffset: 251.2 }}
-                            animate={{ strokeDashoffset: 251.2 - (251.2 * result.score) / 100 }}
-                            transition={{ duration: 1.5, ease: "easeOut" }}
-                            className={`transition-all ${getScoreColor(result.score)}`}
-                            strokeWidth="8"
-                            strokeDasharray={251.2}
-                            strokeLinecap="round"
-                            fill="transparent"
-                            r="40"
-                            cx="50"
-                            cy="50"
-                          />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <motion.span
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 }}
-                            className={`text-4xl font-black ${getScoreColor(result.score)}`}
-                          >
-                            {result.score}%
-                          </motion.span>
-                          <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">
-                            Match Score
-                          </span>
+                      <div className="h-6 w-px bg-border/70 ml-4 my-1" />
+
+                      <div className="flex items-center gap-3 text-sm font-medium text-foreground">
+                        <div className="w-8 h-8 rounded-full bg-muted/70 flex items-center justify-center">
+                          2
+                        </div>
+                        Add the job description
+                      </div>
+
+                      <div className="h-6 w-px bg-border/70 ml-4 my-1" />
+
+                      <div className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
+                        <div className="w-8 h-8 rounded-full bg-muted/70 flex items-center justify-center">
+                          3
+                        </div>
+                        Generate your AI analysis
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card className="bento-card group">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                        <FileText className="w-5 h-5 text-primary" />
+                      </div>
+                      <h3 className="font-bold text-lg">Your Resume</h3>
+                    </div>
+
+                    <Textarea
+                      placeholder="Paste your resume text here..."
+                      className="min-h-[400px] bg-background/60 border-border/50 focus-visible:ring-primary/20 resize-none rounded-2xl p-4 text-sm leading-relaxed"
+                      value={resume}
+                      onChange={(e) => setResume(e.target.value)}
+                    />
+
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Include your experience, skills, education, and measurable
+                      achievements.
+                    </p>
+                  </Card>
+
+                  <div className="space-y-6 flex flex-col">
+                    <Card className="bento-card group flex-1">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 rounded-xl bg-indigo-500/10 group-hover:bg-indigo-500/20 transition-colors">
+                          <Target className="w-5 h-5 text-indigo-500 dark:text-indigo-400" />
+                        </div>
+                        <h3 className="font-bold text-lg">Job Description</h3>
+                      </div>
+
+                      <Textarea
+                        placeholder="Paste the target job description here..."
+                        className="min-h-[280px] h-full bg-background/60 border-border/50 focus-visible:ring-primary/20 resize-none rounded-2xl p-4 text-sm leading-relaxed"
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                      />
+
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        Use the full role requirements for the most accurate
+                        keyword and score analysis.
+                      </p>
+                    </Card>
+
+                    <Button
+                      onClick={handleAnalyze}
+                      disabled={loading}
+                      size="lg"
+                      className="w-full h-16 rounded-2xl text-lg font-bold shadow-2xl shadow-primary/20 hover:shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0 transition-all group"
+                    >
+                      Analyze Resume
+                      <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {phase === "analyzing" && (
+              <motion.div
+                key="loading-phase"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 1.1 }}
+                className="min-h-[60vh] flex flex-col items-center justify-center text-center space-y-8"
+              >
+                <div className="relative">
+                  <div className="w-32 h-32 rounded-full border-4 border-primary/20 animate-[spin_3s_linear_infinite]" />
+                  <div className="absolute inset-0 w-32 h-32 rounded-full border-t-4 border-primary animate-spin" />
+                  <Sparkles className="absolute inset-0 m-auto w-10 h-10 text-primary animate-pulse" />
+                </div>
+
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-black tracking-tight">
+                    Analyzing your resume and job fit...
+                  </h2>
+                  <p className="text-muted-foreground animate-pulse">
+                    Scoring alignment across skills, experience, education, and
+                    keywords.
+                  </p>
+                </div>
+              </motion.div>
+            )}
+
+            {phase === "result" && result && (
+              <motion.div
+                key="result-phase"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-8"
+              >
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="space-y-1">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setPhase("input")}
+                      className="pl-0 hover:bg-transparent text-muted-foreground hover:text-foreground group"
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+                      Back to Editor
+                    </Button>
+
+                    <h2 className="text-3xl font-black tracking-tight">
+                      Analysis Complete
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Review your score, keyword match, and next-step
+                      recommendations below.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <Button
+                      variant="outline"
+                      disabled
+                      className="rounded-xl border-border/60 opacity-60"
+                    >
+                      Save Report
+                    </Button>
+                    <Button disabled className="rounded-xl opacity-60">
+                      Optimize Resume
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  <Card className="lg:col-span-4 bento-card flex flex-col items-center justify-center min-h-[400px] bg-background/75 border-primary/15">
+                    <div className="relative w-52 h-52 md:w-64 md:h-64">
+                      <svg
+                        className="w-full h-full -rotate-90"
+                        viewBox="0 0 100 100"
+                      >
+                        <circle
+                          cx="50"
+                          cy="50"
+                          r="44"
+                          fill="transparent"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          className="text-border"
+                        />
+                        <motion.circle
+                          cx="50"
+                          cy="50"
+                          r="44"
+                          fill="transparent"
+                          stroke="currentColor"
+                          strokeWidth="8"
+                          strokeDasharray="276.46"
+                          initial={{ strokeDashoffset: 276.46 }}
+                          animate={{
+                            strokeDashoffset:
+                              276.46 - (276.46 * result.score) / 100,
+                          }}
+                          transition={{ duration: 1.5, ease: "circOut" }}
+                          className={getScoreColor(result.score)}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span
+                          className={`text-6xl md:text-7xl font-black mb-1 ${getScoreColor(result.score)}`}
+                        >
+                          {result.score}
+                        </span>
+                        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground opacity-70">
+                          Match Score
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 w-full mt-10 border-t border-border/50 pt-8 gap-4 px-4 text-center">
+                      <div className="space-y-1">
+                        <div className="text-xs font-bold text-muted-foreground uppercase">
+                          Skills
+                        </div>
+                        <div className="text-lg font-bold text-purple-500 dark:text-purple-400">
+                          {result.skills_score}%
                         </div>
                       </div>
 
-                      {/* Category Scores */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-border/50 w-full mt-6 py-6 px-4">
-                        {/* Skills Score */}
-                        <div className="flex flex-col gap-2">
-                          <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                            <span>Skills</span>
-                            <span className="text-purple-600">{result.skills_score}%</span>
-                          </div>
-                          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${result.skills_score}%` }}
-                              transition={{ duration: 1, delay: 0.2 }}
-                              className="h-full bg-linear-to-r from-purple-500 to-indigo-500"
-                            />
-                          </div>
+                      <div className="space-y-1 border-x border-border/50">
+                        <div className="text-xs font-bold text-muted-foreground uppercase">
+                          Experience
                         </div>
-                        {/* Experience Score */}
-                        <div className="flex flex-col gap-2">
-                          <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                            <span>Experience</span>
-                            <span className="text-blue-600">{result.experience_score}%</span>
-                          </div>
-                          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${result.experience_score}%` }}
-                              transition={{ duration: 1, delay: 0.3 }}
-                              className="h-full bg-linear-to-r from-blue-500 to-indigo-500"
-                            />
-                          </div>
-                        </div>
-                        {/* Education Score */}
-                        <div className="flex flex-col gap-2">
-                          <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                            <span>Education</span>
-                            <span className="text-emerald-600">{result.education_score}%</span>
-                          </div>
-                          <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${result.education_score}%` }}
-                              transition={{ duration: 1, delay: 0.4 }}
-                              className="h-full bg-linear-to-r from-emerald-500 to-teal-500"
-                            />
-                          </div>
+                        <div className="text-lg font-bold text-blue-500 dark:text-blue-400">
+                          {result.experience_score}%
                         </div>
                       </div>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-8 pt-6">
-                      {/* Summary */}
-                      <div className="bg-primary/5 p-5 rounded-2xl border border-primary/10 relative">
-                        <span className="absolute -top-3 left-4 px-2 bg-background text-[10px] font-bold uppercase tracking-widest text-primary">AI Executive Summary</span>
-                        <p className="text-sm leading-relaxed text-foreground italic font-medium">
-                          "{result.summary}"
+
+                      <div className="space-y-1">
+                        <div className="text-xs font-bold text-muted-foreground uppercase">
+                          Education
+                        </div>
+                        <div className="text-lg font-bold text-emerald-500 dark:text-emerald-400">
+                          {result.education_score}%
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="lg:col-span-8 bento-card relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 transform translate-x-12 -translate-y-12 opacity-5 scale-150 rotate-12">
+                      <Sparkles className="w-64 h-64 text-primary" />
+                    </div>
+
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="p-2 rounded-xl bg-primary/10">
+                        <Lightbulb className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/70">
+                          AI Summary
                         </p>
+                        <h3 className="font-bold text-xl">Summary</h3>
                       </div>
+                    </div>
 
-                      {/* Keywords */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-3">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-green-600 flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                            Keywords Found
-                          </h3>
-                          <div className="flex flex-wrap gap-2">
-                            {result.keywords_match?.map((keyword, i) => (
-                              <Badge
-                                key={i}
-                                variant="secondary"
-                                className="bg-green-500/10 text-green-700 border-green-200/50 hover:bg-green-500/20 transition-colors text-[10px] py-1 px-3 rounded-md"
-                              >
-                                {keyword}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="space-y-3">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-red-600 flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-                            Keywords Missing
-                          </h3>
-                          <div className="flex flex-wrap gap-2">
-                            {result.keywords_missing?.map((keyword, i) => (
-                              <Badge
-                                key={i}
-                                variant="secondary"
-                                className="bg-red-500/10 text-red-700 border-red-200/50 hover:bg-red-500/20 transition-colors text-[10px] py-1 px-3 rounded-md"
-                              >
-                                {keyword}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
+                    <p className="text-xl md:text-2xl font-medium leading-relaxed italic text-foreground/90 mb-8 relative z-10">
+                      "{result.summary}"
+                    </p>
 
-                      {/* Strengths / Weaknesses Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
-                        <div className="space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-                            <span className="h-1 w-4 bg-primary/30 rounded-full" />
-                            Top Strengths
-                          </h3>
-                          <ul className="space-y-3">
-                            {result.strengths?.map((s, i) => (
-                              <li key={i} className="text-sm flex gap-3 items-start group">
-                                <span className="text-primary font-bold mt-0.5 group-hover:scale-125 transition-transform">✦</span>
-                                <span className="text-muted-foreground group-hover:text-foreground transition-colors">{s}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div className="space-y-4">
-                          <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-                             <span className="h-1 w-4 bg-primary/30 rounded-full" />
-                            Focus Areas
-                          </h3>
-                          <ul className="space-y-3">
-                            {result.weaknesses?.map((w, i) => (
-                              <li
-                                key={i}
-                                className="text-sm flex gap-3 items-start group"
-                              >
-                                <span className="text-amber-500 font-bold mt-0.5 group-hover:scale-125 transition-transform">○</span>
-                                <span className="text-muted-foreground group-hover:text-foreground transition-colors">{w}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-
-                      {/* Suggestions */}
-                      <div className="pt-8 border-t border-border/50">
-                        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-blue-600 mb-6 flex items-center gap-3">
-                          <span className="h-6 w-1 bg-blue-600 rounded-full" />
-                          Actionable Suggestions
-                        </h3>
-                        <div className="grid grid-cols-1 gap-3">
-                          {result.suggestions?.map((s, i) => (
-                            <motion.div
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                      <div className="space-y-4">
+                        <h4 className="text-xs font-black uppercase tracking-widest text-emerald-500 dark:text-emerald-400 flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4" />
+                          Core Strengths
+                        </h4>
+                        <ul className="space-y-3">
+                          {result.strengths?.map((s, i) => (
+                            <li
                               key={i}
-                              whileHover={{ x: 5 }}
-                              className="text-sm p-4 rounded-xl bg-blue-500/5 border border-blue-200/20 text-foreground flex gap-4 transition-colors hover:bg-blue-500/10"
+                              className="text-sm text-muted-foreground flex items-start gap-3"
                             >
-                              <span className="flex-none h-6 w-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs ring-4 ring-blue-600/10">
-                                {i + 1}
-                              </span>
-                              <span className="leading-relaxed">{s}</span>
-                            </motion.div>
+                              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500/50" />
+                              {s}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="space-y-4">
+                        <h4 className="text-xs font-black uppercase tracking-widest text-rose-500 dark:text-rose-400 flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          Focus Areas
+                        </h4>
+                        <ul className="space-y-3">
+                          {result.weaknesses?.map((w, i) => (
+                            <li
+                              key={i}
+                              className="text-sm text-muted-foreground flex items-start gap-3"
+                            >
+                              <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-rose-500/50" />
+                              {w}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="lg:col-span-5 bento-card">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="p-2 rounded-xl bg-blue-500/10">
+                        <Hash className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                      </div>
+                      <h3 className="font-bold text-lg">Keyword Insights</h3>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+                          Matched Keywords
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {result.keywords_match?.map((kw, i) => (
+                            <Badge
+                              key={i}
+                              className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 px-3 py-1 rounded-lg"
+                            >
+                              {kw}
+                            </Badge>
                           ))}
                         </div>
                       </div>
-                    </CardContent>
+
+                      <div className="space-y-3">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+                          Missing Keywords
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {result.keywords_missing?.map((kw, i) => (
+                            <Badge
+                              key={i}
+                              className="bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 px-3 py-1 rounded-lg"
+                            >
+                              {kw}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
                   </Card>
-                </motion.div>
-              ) : (
-                <motion.div 
-                    key="placeholder"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="h-full min-h-[500px] flex flex-col items-center justify-center text-center p-12 border-2 border-dashed border-border rounded-3xl bg-background/50 text-muted-foreground transition-all duration-500 hover:bg-background/80 hover:border-primary/30 backdrop-blur-sm"
-                >
-                  <motion.div 
-                    animate={{ y: [0, -10, 0] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                    className="h-20 w-20 bg-primary/10 rounded-3xl flex items-center justify-center mb-8 rotate-12"
-                  >
-                    <span className="text-4xl">✨</span>
-                  </motion.div>
-                  <h3 className="text-2xl font-black text-foreground mb-4 italic tracking-tight">
-                    Ready to accelerate your career?
-                  </h3>
-                  <p className="max-w-xs mx-auto text-muted-foreground leading-relaxed">
-                    Paste your resume and job requirements on the left to unlock
-                    your instant <span className="text-primary font-bold">AI analysis</span> and match scores.
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </motion.div>
+
+                  <Card className="lg:col-span-7 bento-card bg-primary/5 border-primary/15">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-xl bg-primary/10">
+                          <Sparkles className="w-5 h-5 text-primary" />
+                        </div>
+                        <h3 className="font-bold text-lg">
+                          Actionable Suggestions
+                        </h3>
+                      </div>
+                      <Badge className="bg-primary/20 text-foreground text-[10px] font-bold">
+                        Actionable
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-3">
+                      {result.suggestions?.map((s, i) => (
+                        <div
+                          key={i}
+                          className="group p-4 rounded-2xl bg-background/55 border border-border/50 hover:border-primary/30 transition-all flex gap-4"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex-none flex items-center justify-center font-bold text-sm">
+                            {i + 1}
+                          </div>
+                          <p className="text-sm text-foreground/80 leading-relaxed group-hover:text-foreground transition-colors">
+                            {s}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </main>
+
       <Footer />
-    </>
+    </div>
   );
 }
