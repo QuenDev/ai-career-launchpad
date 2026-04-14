@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -19,6 +19,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import Link from "next/link";
+import { isLoggedIn } from "@/lib/auth";
 
 // Animation Variants
 const fadeIn = {
@@ -40,12 +41,17 @@ export default function Home() {
   const howRef = useRef(null);
   const ctaRef = useRef(null);
 
+  const [loggedIn, setLoggedIn] = useState(false);
   const featuresInView = useInView(featuresRef, {
     once: true,
     margin: "-100px",
   });
   const howInView = useInView(howRef, { once: true, margin: "-100px" });
   const ctaInView = useInView(ctaRef, { once: true, margin: "-100px" });
+
+  useEffect(() => {
+    setLoggedIn(isLoggedIn());
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col font-sans selection:bg-primary/30 overflow-x-hidden">
@@ -56,7 +62,7 @@ export default function Home() {
       <div className="fixed inset-0 -z-40 bg-[url('/grid.svg')] bg-center mask-[linear-gradient(180deg,white,rgba(255,255,255,0))] opacity-10 dark:opacity-20" />
 
       {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-6 flex flex-col items-center justify-center overflow-hidden">
+      <section className="relative pt-20 pb-12 md:pt-32 md:pb-24 px-6 flex flex-col items-center justify-center overflow-hidden">
         <div className="max-w-6xl mx-auto text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -77,10 +83,10 @@ export default function Home() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-4xl sm:text-5xl md:text-8xl font-black tracking-tighter leading-[0.85] mb-8 uppercase italic"
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.85] mb-8 uppercase italic"
           >
-            Elevate Your <br />
-            <span className="text-gradient">Professional</span> <br />
+            Elevate Your <br className="hidden sm:block" />
+            <span className="text-gradient">Professional</span> <br className="hidden sm:block" />
             Trajectory.
           </motion.h1>
 
@@ -101,24 +107,38 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
-            <Link href="/signup">
-              <Button
-                size="lg"
-                className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
-              >
-                Get Started Free
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest bg-background/20 backdrop-blur-md hover:bg-background/40 transition-all"
-              >
-                Login
-              </Button>
-            </Link>
+            {loggedIn ? (
+              <Link href="/dashboard">
+                <Button
+                  size="lg"
+                  className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all text-sm md:text-base"
+                >
+                  Go to Dashboard
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/signup">
+                  <Button
+                    size="lg"
+                    className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm md:text-base"
+                  >
+                    Get Started Free
+                    <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="h-14 px-10 rounded-2xl font-black uppercase tracking-widest bg-background/20 backdrop-blur-md hover:bg-background/40 transition-all text-xs sm:text-sm md:text-base"
+                  >
+                    Login
+                  </Button>
+                </Link>
+              </>
+            )}
           </motion.div>
 
           <motion.div
@@ -171,7 +191,7 @@ export default function Home() {
             </motion.div>
             <motion.h2
               variants={fadeIn}
-              className="text-4xl md:text-5xl font-black tracking-tighter uppercase italic"
+              className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter uppercase italic"
             >
               Unrivaled <span className="text-gradient">Intelligence.</span>
             </motion.h2>
@@ -184,13 +204,13 @@ export default function Home() {
             </motion.p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-5 auto-rows-[220px]">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5 auto-rows-max md:auto-rows-[220px]">
             {/* Main Bento Item */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={featuresInView ? { opacity: 1, scale: 1 } : {}}
               transition={{ duration: 0.6 }}
-              className="md:col-span-8 md:row-span-2 glass rounded-[2.5rem] p-8 md:p-12 border-border/40 relative overflow-hidden group shadow-2xl"
+              className="md:col-span-8 md:row-span-2 glass rounded-[2.5rem] p-6 sm:p-8 md:p-12 border-border/40 relative overflow-hidden group shadow-2xl"
             >
               <div className="absolute top-0 right-0 p-12 transform translate-x-12 -translate-y-12 opacity-5 scale-150 rotate-12 group-hover:rotate-0 transition-transform duration-1000">
                 <Brain className="w-64 h-64 text-primary" />
@@ -293,7 +313,7 @@ export default function Home() {
           >
             <motion.h2
               variants={fadeIn}
-              className="text-4xl md:text-5xl font-black tracking-tighter uppercase italic"
+              className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter uppercase italic"
             >
               The <span className="text-gradient">Workflow.</span>
             </motion.h2>
@@ -361,7 +381,7 @@ export default function Home() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={ctaInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.8 }}
-            className="glass rounded-[2.5rem] p-10 md:p-16 text-center relative overflow-hidden group shadow-[0_0_50px_rgba(var(--primary),0.05)]"
+            className="glass rounded-[2.5rem] p-8 sm:p-12 md:p-16 text-center relative overflow-hidden group shadow-[0_0_50px_rgba(var(--primary),0.05)]"
           >
             {/* Animated internal glimmer */}
             <div className="absolute top-0 -left-1/2 w-full h-full bg-linear-to-r from-transparent via-white/5 to-transparent skew-x-12 -translate-x-full group-hover:translate-x-[200%] transition-transform duration-1000" />
@@ -370,8 +390,8 @@ export default function Home() {
               <div className="inline-flex h-12 w-12 rounded-2xl bg-primary/10 items-center justify-center mb-4">
                 <Rocket className="w-6 h-6 text-primary animate-bounce" />
               </div>
-              <h2 className="text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-none">
-                Ready to Land Your <br />
+              <h2 className="text-3xl sm:text-4xl md:text-6xl font-black tracking-tighter uppercase italic leading-none">
+                Ready to Land Your <br className="hidden sm:block" />
                 <span className="text-gradient">Dream Project?</span>
               </h2>
               <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto font-medium">
@@ -379,12 +399,12 @@ export default function Home() {
                 clarity and speed in their career growth.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Link href="/signup">
+                <Link href={loggedIn ? "/dashboard" : "/signup"}>
                   <Button
                     size="lg"
-                    className="h-14 px-12 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                    className="h-14 px-12 rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 transition-all text-xs sm:text-sm md:text-base"
                   >
-                    Start Analyzing Your Resume
+                    {loggedIn ? "Go to Dashboard" : "Start Analyzing Your Resume"}
                   </Button>
                 </Link>
               </div>
