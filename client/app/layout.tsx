@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     siteName: "AI Career Launchpad",
     images: [
       {
-        url: "/og-image.png",
+        url: "/og-image-v2.png",
         width: 1200,
         height: 630,
         alt: "AI Career Launchpad",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     title: "AI Career Launchpad",
     description:
       "Analyze your resume against job descriptions with AI and improve your applications.",
-    images: ["/og-image.png"],
+    images: ["/og-image-v2.png"],
   },
   robots: {
     index: true,
