@@ -232,4 +232,8 @@ Built with ❤️ as a full-stack SaaS portfolio project.
 
 ---
 
+## 📦 Version
+
+v1.0.0 — Initial production release
+
 > **⭐ If you found this useful, give it a star on GitHub!**

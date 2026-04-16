@@ -25,6 +25,10 @@ export const signup = async (req: Request, res: Response) => {
       .single();
 
     if (error) {
+      if (error.code === "23505") {
+        res.status(400).json({ error: "Email already exists. Please log in instead." });
+        return;
+      }
       res.status(400).json({ error: error.message });
       return;
     }

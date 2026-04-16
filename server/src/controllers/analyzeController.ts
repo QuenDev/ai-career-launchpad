@@ -29,8 +29,8 @@ export const analyzeResume = async (req: AuthRequest, res: Response) => {
     - Be specific and actionable in your feedback
     -  Score should reflect how well the resume matches the job
     - Provide atleast 2 items for each array
-     - Keep each item concise (max 2 sentences)
- - summary MUST be a single paragraph of 2-3 sentences
+    - Keep each item concise (max 2 sentences)
+    - summary MUST be a single paragraph of 2-3 sentences
 
     You MUST respond with ONLY a valid JSON object, no other text:
     {
