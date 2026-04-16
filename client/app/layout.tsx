@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
     siteName: "AI Career Launchpad",
     images: [
       {
-        url: "/og-image-v2.png",
+        url: "/og-image-v2.png?v=3",
         width: 1200,
         height: 630,
         alt: "AI Career Launchpad",
@@ -56,7 +57,7 @@ export const metadata: Metadata = {
     title: "AI Career Launchpad",
     description:
       "Analyze your resume against job descriptions with AI and improve your applications.",
-    images: ["/og-image-v2.png"],
+    images: ["/og-image-v2.png?v=3"],
   },
   robots: {
     index: true,
@@ -76,6 +77,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
+        <GoogleAnalytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

@@ -8,6 +8,7 @@ import { authMiddleware } from "./middleware/authMiddleware";
 import analyzeRoutes from "./routes/analyze";
 import historyRoutes from "./routes/history";
 import profileRoutes from "./routes/profile";
+import uploadRoutes from "./routes/upload";
 
 dotenv.config(); // loads .env variables
 
@@ -72,6 +73,9 @@ app.use("/history", historyRoutes);
 
 //Profile routes
 app.use("/profile", profileRoutes);
+
+//Upload PDF routes
+app.use("/upload", uploadRoutes);
 
 //Test protecterd route
 app.get("/protected", authMiddleware, (req, res) => {

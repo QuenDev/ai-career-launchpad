@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { isLoggedIn } from "@/lib/auth";
-import { apiFetch } from "@/lib/api";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import Navbar from "@/components/Navbar";
+import { Upload, X, Copy, Share2 } from "lucide-react";
+
 import {
   FileText,
   Target,
@@ -24,91 +21,27 @@ import {
   ArrowLeft,
 } from "lucide-react";
 
-interface AnalysisResult {
-  score: number;
-  skills_score: number;
-  experience_score: number;
-  education_score: number;
-  strengths: string[];
-  summary: string;
-  weaknesses: string[];
-  suggestions: string[];
-  keywords_match: string[];
-  keywords_missing: string[];
-}
-
-type Phase = "input" | "analyzing" | "result";
+import { useDashboard } from "./useDashboard";
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [phase, setPhase] = useState<Phase>("input");
-  const [resume, setResume] = useState("");
-  const [jobDescription, setJobDescription] = useState("");
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!isLoggedIn()) {
-      router.push("/login");
-    }
-  }, [router]);
-
-  const handleAnalyze = async () => {
-    if (resume.trim().length < 50) {
-      toast.error("Resume is too short. Please paste your full resume.");
-      return;
-    }
-
-    if (jobDescription.trim().length < 30) {
-      toast.error(
-        "Job description is too short. Please paste the full job description."
-      );
-      return;
-    }
-
-    setLoading(true);
-    setPhase("analyzing");
-
-    try {
-      const res = await apiFetch("/analyze", {
-        method: "POST",
-        body: JSON.stringify({ resume, jobDescription }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error || "Analysis failed");
-        setPhase("input");
-        return;
-      }
-
-      setResult(data);
-      setPhase("result");
-
-      apiFetch("/history/save", {
-        method: "POST",
-        body: JSON.stringify({
-          resume,
-          jobDescription,
-          ...data,
-        }),
-      }).catch(console.error);
-
-      toast.success("Analysis complete!");
-    } catch (err) {
-      toast.error("Something went wrong. Please try again.");
-      setPhase("input");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 75) return "text-emerald-500 dark:text-emerald-400";
-    if (score >= 50) return "text-amber-500 dark:text-amber-400";
-    return "text-rose-500 dark:text-rose-400";
-  };
+  const {
+    phase,
+    setPhase,
+    resume,
+    setResume,
+    jobDescription,
+    setJobDescription,
+    result,
+    loading,
+    uploading,
+    fileName,
+    handleAnalyze,
+    getScoreColor,
+    handlePdfUpload,
+    clearPdf,
+    copyToClipboard,
+    shareResults,
+  } = useDashboard();
 
   return (
     <div className="relative min-h-screen flex flex-col font-sans selection:bg-primary/30">
@@ -188,9 +121,66 @@ export default function DashboardPage() {
                       <h3 className="font-bold text-lg">Your Resume</h3>
                     </div>
 
+                    {/* PDF Upload Zone */}
+                    <div className="mb-4">
+                      {fileName ? (
+                        <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="p-1.5 rounded-lg bg-emerald-500/15 flex-none">
+                              <FileText className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                            </div>
+                            <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400 truncate">
+                              {fileName}
+                            </span>
+                          </div>
+                          <button
+                            onClick={clearPdf}
+                            className="p-1 rounded-lg hover:bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 transition-colors flex-none cursor-pointer"
+                            aria-label="Remove uploaded file"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <label
+                          className={`flex items-center justify-center gap-3 px-4 py-4 rounded-xl border-2 border-dashed transition-all cursor-pointer
+                            ${uploading
+                              ? "border-primary/40 bg-primary/5 pointer-events-none"
+                              : "border-border/50 hover:border-primary/30 hover:bg-primary/5"
+                            }`}
+                        >
+                          <input
+                            type="file"
+                            accept="application/pdf"
+                            className="hidden"
+                            onChange={handlePdfUpload}
+                            disabled={uploading}
+                          />
+                          {uploading ? (
+                            <>
+                              <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin flex-none" />
+                              <span className="text-sm font-medium text-primary">
+                                Extracting text...
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-5 h-5 text-muted-foreground" />
+                              <span className="text-sm font-medium text-muted-foreground">
+                                Upload PDF resume
+                              </span>
+                              <span className="text-xs text-muted-foreground/60">
+                                (max 5MB)
+                              </span>
+                            </>
+                          )}
+                        </label>
+                      )}
+                    </div>
+
                     <Textarea
-                      placeholder="Paste your resume text here..."
-                      className="min-h-[400px] bg-background/60 border-border/50 focus-visible:ring-primary/20 resize-none rounded-2xl p-4 text-sm leading-relaxed"
+                      placeholder="Paste your resume text here or upload a PDF above..."
+                      className="min-h-[340px] bg-background/60 border-border/50 focus-visible:ring-primary/20 resize-none rounded-2xl p-4 text-sm leading-relaxed"
                       value={resume}
                       onChange={(e) => setResume(e.target.value)}
                     />
@@ -290,16 +280,21 @@ export default function DashboardPage() {
                     </p>
                   </div>
 
-                  <div className="flex gap-4">
+                  <div className="flex gap-3">
                     <Button
                       variant="outline"
-                      disabled
-                      className="rounded-xl border-border/60 opacity-60"
+                      onClick={copyToClipboard}
+                      className="rounded-xl border-border/60 hover:border-primary/30 hover:bg-primary/5 transition-all group"
                     >
-                      Save Report
+                      <Copy className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                      Copy Analysis
                     </Button>
-                    <Button disabled className="rounded-xl opacity-60">
-                      Optimize Resume
+                    <Button
+                      onClick={shareResults}
+                      className="rounded-xl shadow-lg shadow-primary/15 hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 transition-all group"
+                    >
+                      <Share2 className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+                      Share Results
                     </Button>
                   </div>
                 </div>
