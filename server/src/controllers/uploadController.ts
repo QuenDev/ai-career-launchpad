@@ -37,3 +37,4 @@ export const extractPdfText = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to process PDF. Please try again." });
   }
 };
+ 
