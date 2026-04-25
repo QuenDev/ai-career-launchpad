@@ -130,10 +130,13 @@ Create a `.env` file in the `server/` directory:
 ```env
 PORT=5000
 SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_secret
 JWT_SECRET=your_jwt_secret
 GROQ_API_KEY=your_groq_api_key
 ```
+
+> [!IMPORTANT]
+> **Security Requirement:** Enable Row Level Security (RLS) on your Supabase tables. The backend uses the `service_role` key to bypass RLS safely, while keeping your data protected from direct client-side access.
 
 Start the dev server:
 
@@ -171,7 +174,7 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 
 | Method   | Endpoint         | Auth | Description                 |
 | -------- | ---------------- | ---- | --------------------------- |
-| `POST`   | `/auth/register` | ❌   | Create new account          |
+| `POST`   | `/auth/signup`   | ❌   | Create new account          |
 | `POST`   | `/auth/login`    | ❌   | Login & get JWT             |
 | `POST`   | `/analyze`       | ✅   | Run AI resume analysis      |
 | `POST`   | `/upload/pdf`    | ✅   | Upload & extract PDF text   |
